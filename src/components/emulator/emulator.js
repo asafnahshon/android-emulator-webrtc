@@ -27,7 +27,6 @@ import {
 
 const PngView = withMouseKeyHandler(EmulatorPngView);
 const RtcView = withMouseKeyHandler(EmulatorWebrtcView);
-
 /**
  * A React component that displays a remote android emulator.
  *
@@ -182,6 +181,19 @@ class Emulator extends Component {
     request.setKey(key);
     this.jsep.send("keyboard", request);
   };
+
+  sendClipboard = (key) => {
+    var request = new Proto.ClipData(key)
+    this.jsep.send("data",  request);
+  };
+
+  getIsraelClipboard = (input) => {
+    debugger;
+    const test = new Proto.ClipData;
+    const testgettext = test.getText();
+    console.log(testgettext);
+
+  }
 
   _onAudioStateChange = (s) => {
     const { onAudioStateChange } = this.props;
