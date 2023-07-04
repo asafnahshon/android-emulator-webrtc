@@ -126,6 +126,12 @@ class Emulator extends Component {
     this.view = React.createRef();
   }
 
+  gotClipData(value) {
+    debugger;
+    const test = value.toString();
+    console.log(value);
+  }
+
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.view === "png")
       return {
@@ -182,20 +188,15 @@ class Emulator extends Component {
     this.jsep.send("keyboard", request);
   };
 
-  sendClipboard = (key) => {
-    var request = new Proto.ClipData(key)
-    this.jsep.send("data",  request);
-  };
-
-  getIsraelClipboard = async () => {
+  getClipboard = async () => {
     let clipData = new Proto.ClipData();
     clipData.getText();
-    const result = await this.jsep.send("getclipdata", clipData);
-    debugger;
-    return result;
+    this.jsep.send("getclipdata", clipData, (value) => {
+      this.props.onClipData(value);
+    });
   }
 
-  setIsraelClipboard = (input) => {
+  setClipboard = (input) => {
     let clipData = new Proto.ClipData();
     clipData.setText(input);
     this.jsep.send("setclipdata", clipData);

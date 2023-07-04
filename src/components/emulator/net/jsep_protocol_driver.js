@@ -174,7 +174,7 @@ export default class JsepProtocol {
     }
   };
 
-  send(label, msg) {
+  send(label, msg, callback) {
     let bytes = null
     if(typeof msg !== 'string'){
       bytes = msg.serializeBinary()
@@ -202,16 +202,15 @@ export default class JsepProtocol {
         this.emulator.sendTouch(msg);
         break;
 
-      case "data":
-        this.emulator.setClipboard(msg);
-        break;
-
       case "setclipdata":
         this.emulator.setClipboard(msg);
         break;
 
       case "getclipdata":
-        const result = this.emulator.getClipboard(msg, _handleGetClipData);
+        //const result = this.emulator.getClipboard(msg, {}, this._handleGetClipData);
+        const result = this.emulator.getClipboard(msg, {}, (somehing, clipData) => {
+          callback(clipData);
+        });
         break;
     }
   }
@@ -235,11 +234,7 @@ export default class JsepProtocol {
     this.peerConnection.onsignalingstatechange = this._handlePeerState;
   };
 
-  _handleGetClipData = (clipData) => {
-    debugger;
-    console.log(clipData);
 
-  }
 
   _handlePeerState = (event) => {
     if (!this.peerConnection) {
