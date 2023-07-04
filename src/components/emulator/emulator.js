@@ -187,12 +187,18 @@ class Emulator extends Component {
     this.jsep.send("data",  request);
   };
 
-  getIsraelClipboard = (input) => {
+  getIsraelClipboard = async () => {
+    let clipData = new Proto.ClipData();
+    clipData.getText();
+    const result = await this.jsep.send("getclipdata", clipData);
     debugger;
-    const test = new Proto.ClipData;
-    const testgettext = test.getText();
-    console.log(testgettext);
+    return result;
+  }
 
+  setIsraelClipboard = (input) => {
+    let clipData = new Proto.ClipData();
+    clipData.setText(input);
+    this.jsep.send("setclipdata", clipData);
   }
 
   _onAudioStateChange = (s) => {

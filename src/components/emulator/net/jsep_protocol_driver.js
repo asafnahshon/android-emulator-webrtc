@@ -57,7 +57,7 @@ export default class JsepProtocol {
     this.rtc = rtc;
     this.events = new EventEmitter();
 
-    // Workaround for older emulators that send messages out of order
+    // Workaround for older emulators that (send) messages out of order
     // and do not handle all answers properly.
     this.old_emu_patch = {
       candidates: [],
@@ -77,6 +77,7 @@ export default class JsepProtocol {
   on = (name, fn) => {
     this.events.on(name, fn);
   };
+
 
   /**
    * Disconnects the stream. This will stop the message pump as well.
@@ -174,25 +175,44 @@ export default class JsepProtocol {
   };
 
   send(label, msg) {
-    let bytes = msg.serializeBinary();
+    let bytes = null
+    if(typeof msg !== 'string'){
+      bytes = msg.serializeBinary()
+      console.log("Send " + label + " " + JSON.stringify(msg.toObject()));
+    }
+   else{
+      console.log("Send " + label + " " + msg);
+    }
+   /*
     let forwarder = this.event_forwarders[label];
-    console.log("Send " + label + " " + JSON.stringify(msg.toObject()));
     // Send via data channel/gRPC bridge.
-    if (this.connected && forwarder && forwarder.readyState == "open") {
+    if (typeof msg !== 'string' && this.connected && forwarder && forwarder.readyState == "open") {
       this.event_forwarders[label].send(bytes);
-    } else {
+    } else*/
+
       // Fallback to using the gRPC protocol
-      switch (label) {
-        case "mouse":
-          this.emulator.sendMouse(msg);
-          break;
-        case "keyboard":
-          this.emulator.sendKey(msg);
-          break;
-        case "touch":
-          this.emulator.sendTouch(msg);
-          break;
-      }
+    switch (label) {
+      case "mouse":
+        this.emulator.sendMouse(msg);
+        break;
+      case "keyboard":
+        this.emulator.sendKey(msg);
+        break;
+      case "touch":
+        this.emulator.sendTouch(msg);
+        break;
+
+      case "data":
+        this.emulator.setClipboard(msg);
+        break;
+
+      case "setclipdata":
+        this.emulator.setClipboard(msg);
+        break;
+
+      case "getclipdata":
+        const result = this.emulator.getClipboard(msg, _handleGetClipData);
+        break;
     }
   }
 
@@ -214,6 +234,12 @@ export default class JsepProtocol {
     this.peerConnection.ondatachannel = this._handleDataChannel;
     this.peerConnection.onsignalingstatechange = this._handlePeerState;
   };
+
+  _handleGetClipData = (clipData) => {
+    debugger;
+    console.log(clipData);
+
+  }
 
   _handlePeerState = (event) => {
     if (!this.peerConnection) {
@@ -351,7 +377,7 @@ export default class JsepProtocol {
       const msg = response.getMessage();
       // Handle only if we received a useful message.
       // it is possible to get nothing if the server decides
-      // to kick us out.
+      // to kick us out.getClipboard
       if (msg) {
         self._handleJsepMessage(response.getMessage());
       }
