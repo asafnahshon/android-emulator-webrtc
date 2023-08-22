@@ -183,12 +183,12 @@ export default class JsepProtocol {
    else{
       console.log("Send " + label + " " + msg);
     }
-   /*
+
     let forwarder = this.event_forwarders[label];
     // Send via data channel/gRPC bridge.
     if (typeof msg !== 'string' && this.connected && forwarder && forwarder.readyState == "open") {
       this.event_forwarders[label].send(bytes);
-    } else*/
+    } else
 
       // Fallback to using the gRPC protocol
     switch (label) {
